@@ -11,7 +11,19 @@
 <body>
     <div class="container">
         <h1>Card Manager</h1>
-
+        <section class="card-form">
+            <form id="create-card-form">
+                <input type="text" name="title" placeholder="Card title" required. maxlength="50">
+                <textarea name="description" rows="3"></textarea>
+                <select name="category" required>
+                    <option value="">Choose a category</option>
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                    <option value="study">Study</option>
+                </select>
+                <button type="submit">Create Card</button>
+            </form>
+        </section>
         <div id="cards-container">
         </div>
     </div>

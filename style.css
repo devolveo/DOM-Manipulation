@@ -11,7 +11,7 @@ body {
 }
 
 .container {
-  background-color: pink;
+  /* background-color: pink; */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -77,4 +77,60 @@ body {
 
 .delete-btn:hover {
   background: #d32f2f;
+}
+
+.card-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-form h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+#create-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input,
+textarea,
+select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+button[type="submit"] {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+  background-color: #4caf50;
+}
+
+button[type="submit"]:active {
+  transform: translateY(1px);
 }
