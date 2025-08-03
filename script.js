@@ -1,6 +1,4 @@
-// DOM element references (declare here, assign later)
 let cardsContainer;
-
 let cards = [
   {
     id: 1,
@@ -31,8 +29,10 @@ function getFilteredCards() {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM fully loaded");
   cardsContainer = document.querySelector("#cards-container");
+  form = document.querySelector("#create-card-form");
 
   console.log("cards container: ", cardsContainer);
+  console.log("Form:", form);
 
   if (!cardsContainer) {
     console.error("could not find #cards-container element!");
@@ -94,30 +94,103 @@ function setupEventListener() {
     return;
   }
 
+  if (form) {
+    form.addEventListener("submit", handleCreateCard);
+    console.log("Form listener attached");
+  }
+
   cardsContainer.addEventListener("click", handleCardClick);
   console.log("event listeners attached");
+}
 
-  /********************/
-  /*  handleCardClick */
-  /********************/
-  function handleCardClick(event) {
-    console.log("Card container clicked:", event.target);
+/****************************************/
+/*           handleCreateCard           */
+/****************************************/
 
-    if (!event || !event.target) {
-      console.error("handleCardClick: invalid event");
-      return;
-    }
+function handleCreateCard(event) {
+  console.log("Form submitted");
 
-    // check if the close button was clicked
-    const deleteBtn = event.target.closest(".delete-btn");
-    if (deleteBtn) {
-      const card = event.target.closest(".card");
+  if (!event) {
+    console.error("handleCreateCard: No event object");
+    return;
+  }
 
-      if (card) {
-        const cardId = parseInt(card.dataset.cardId);
-        console.log("Delete button clicked for card: ", cardId);
-        deleteCard(cardId);
-      }
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const title = formData.get("title")?.trim();
+  const description = formData.get("description")?.trim();
+  const category = formData.get("category");
+
+  console.log("Form data:", { title, description, category });
+
+  if (!title || !description || !category) {
+    console.error("handleCreateCard: missing required field");
+    alert("Please fill all fields");
+    return;
+  }
+
+  if (title.length > 50) {
+    alert("title must be less than 50 characters");
+    return;
+  }
+
+  if (description.length > 200) {
+    alert("description must be less than 200 characters");
+    return;
+  }
+
+  // 🧠 THINKING: "Create the new card object"
+  // Create new card object
+  const newCard = {
+    id: nextId++, // Use current nextId, then increment
+    title: title,
+    description: description,
+    category: category,
+    createdAt: new Date().toISOString(),
+  };
+
+  console.log("Creating new card:", newCard);
+
+  // 🧠 THINKING: "Add to beginning so newest shows first"
+  // Update state (add to beginning)
+  cards.unshift(newCard);
+
+  // 🧠 THINKING: "Clear form for next entry"
+  // Clear form
+  event.target.reset();
+
+  // 🧠 THINKING: "Update UI to show new card"
+  // Re-render
+  renderCards();
+
+  // 🧠 THINKING: "Good UX - ready for next entry"
+  // Focus back to title field for quick entry
+  event.target.querySelector('[name="title"]').focus();
+
+  console.log("Card created successfully. Total cards:", cards.length);
+}
+
+/********************/
+/*  handleCardClick */
+/********************/
+function handleCardClick(event) {
+  console.log("Card container clicked:", event.target);
+
+  if (!event || !event.target) {
+    console.error("handleCardClick: invalid event");
+    return;
+  }
+
+  // check if the close button was clicked
+  const deleteBtn = event.target.closest(".delete-btn");
+  if (deleteBtn) {
+    const card = event.target.closest(".card");
+
+    if (card) {
+      const cardId = parseInt(card.dataset.cardId);
+      console.log("Delete button clicked for card: ", cardId);
+      deleteCard(cardId);
     }
   }
 }
