@@ -1,4 +1,7 @@
 let cardsContainer;
+let form;
+let searchInput;
+let filterSelect;
 let cards = [
   {
     id: 1,
@@ -22,7 +25,28 @@ let nextId = 3;
 console.log("Initial cards loaded:", cards);
 
 function getFilteredCards() {
-  return cards;
+  console.log("filtering cards");
+
+  const searchTerm = searchInput?.value.toLowerCase() || "";
+  const category = filterSelect?.value || "all";
+
+  console.log("Search term: ", searchTerm);
+  console.log("Category filter: ", category);
+
+  const filtered = cards.filter((card) => {
+    const matchesSearch =
+      card.title.toLowerCase().includes(searchTerm) ||
+      card.description.toLowerCase().includes(searchTerm);
+
+    const matchesCategory = category === "all" || card.category === category;
+    console.log(
+      `matchedSearch data: ${matchesSearch} and  matchedCategory data: ${matchesCategory}`
+    );
+    return matchesSearch && matchesCategory;
+  });
+
+  console.log(`Filtered ${filtered.length} of ${cards.length} cards`);
+  return filtered;
 }
 
 // wait for DOM to load
@@ -30,9 +54,13 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM fully loaded");
   cardsContainer = document.querySelector("#cards-container");
   form = document.querySelector("#create-card-form");
+  searchInput = document.querySelector("#search-input");
+  filterSelect = document.querySelector("#filter-category");
 
   console.log("cards container: ", cardsContainer);
   console.log("Form:", form);
+  console.log("Search input:", searchInput);
+  console.log("Filter select:", filterSelect);
 
   if (!cardsContainer) {
     console.error("could not find #cards-container element!");
@@ -99,8 +127,28 @@ function setupEventListener() {
     console.log("Form listener attached");
   }
 
+  if (searchInput) {
+    searchInput.addEventListener("input", handleSearch);
+    console.log("Search listener attached");
+  }
+
+  if (filterSelect) {
+    filterSelect.addEventListener("change", handleFilter);
+    console.log("Filter listener attached");
+  }
+
   cardsContainer.addEventListener("click", handleCardClick);
   console.log("event listeners attached");
+}
+
+function handleSearch() {
+  console.log("Search triggered: ", searchInput.value);
+  renderCards();
+}
+
+function handleFilter() {
+  console.log("filter changed: ", filterSelect.value);
+  renderCards();
 }
 
 /****************************************/
