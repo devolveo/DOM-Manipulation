@@ -67,7 +67,11 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  renderCards(cards);
+  if (!loadCards()) {
+    console.log("using default cards");
+  }
+
+  renderCards();
   setupEventListener();
 });
 
@@ -151,6 +155,11 @@ function handleFilter() {
   renderCards();
 }
 
+function getNextId() {
+  if (cards.length === 0) return 1;
+  return Math.max(...cards.map((card) => card.id)) + 1;
+}
+
 /****************************************/
 /*           handleCreateCard           */
 /****************************************/
@@ -191,7 +200,7 @@ function handleCreateCard(event) {
   // 🧠 THINKING: "Create the new card object"
   // Create new card object
   const newCard = {
-    id: nextId++, // Use current nextId, then increment
+    id: getNextId(), // Use current nextId, then increment
     title: title,
     description: description,
     category: category,
@@ -203,6 +212,8 @@ function handleCreateCard(event) {
   // 🧠 THINKING: "Add to beginning so newest shows first"
   // Update state (add to beginning)
   cards.unshift(newCard);
+
+  saveCards();
 
   // 🧠 THINKING: "Clear form for next entry"
   // Clear form
@@ -265,10 +276,70 @@ function deleteCard(cardId) {
     return false;
   }
 
+  saveCards();
+
   // state changed, then re-render the ui
   renderCards();
 
   console.log("deleteCard: Successfully remove card: ", cardId);
   console.log("remaining cards: ", cards.length);
   return true;
+}
+
+function saveCards() {
+  console.log("Saving cards to localStorage");
+  try {
+    const cardJSON = JSON.stringify(cards);
+
+    localStorage.setItem("cardManager_cards", cardJSON);
+    console.log(`Saved ${cards.length} cards`);
+    return true;
+  } catch (error) {
+    console.error("saveCards: Failed to save.", error);
+    if (error.name === "QuotaExceededError") {
+      alert("Storage is full. Please delete some cards.");
+    }
+  }
+}
+
+function loadCards() {
+  console.log("Loading cards from localStorage");
+  try {
+    const cardsJSON = localStorage.getItem("cardManager_cards");
+
+    if (!cardsJSON) {
+      console.log("No saved cards found!.");
+      return false;
+    }
+
+    const savedCards = JSON.parse(cardsJSON);
+
+    if (!Array.isArray(savedCards)) {
+      console.error("loadCards: invalid data format");
+      return false;
+    }
+
+    const isValidData = savedCards.every(
+      (card) =>
+        card.hasOwnProperty("id") &&
+        card.hasOwnProperty("title") &&
+        card.hasOwnProperty("category")
+    );
+
+    if (!isValidData) {
+      console.error("loadCards: corrupted card data");
+      return false;
+    }
+
+    cards = savedCards;
+
+    return true;
+  } catch (error) {
+    console.error("Failed to load data", error);
+    if (error instanceof SyntaxError) {
+      console.error("Corrupted localStorage data, using defaults");
+      localStorage.removeItem("cardManager_cards");
+    }
+    return false;
+  }
 }
