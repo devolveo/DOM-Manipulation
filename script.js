@@ -115,6 +115,12 @@ function renderCards(cardsToRender = null) {
 
   // single DOM update for performance
   cardsContainer.innerHTML = cardsHTML;
+
+  const cardElements = cardsContainer.querySelectorAll(".card");
+  cardElements.forEach((card, index) => {
+    card.style.animationDelay = `${index * 50}ms`;
+  });
+
   console.log(`renderCards: Rendered ${cards.length} cards`);
 }
 
@@ -215,6 +221,11 @@ function handleCreateCard(event) {
 
   saveCards();
 
+  form.classList.add("form-success");
+  setTimeout(() => {
+    form.classList.remove("form-success");
+  }, 500);
+
   // 🧠 THINKING: "Clear form for next entry"
   // Clear form
   event.target.reset();
@@ -269,20 +280,37 @@ function deleteCard(cardId) {
   }
 
   const initialLength = cards.length;
-  cards = cards.filter((card) => card.id !== cardId);
+
+  // animation
+  // find the element for animation
+  const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+
+  if (cardElement) {
+    cardElement.classList.add("card-exit");
+    // listen for annimation end
+    cardElement.addEventListener("animationend", () => {
+      cards = cards.filter((card) => card.id !== cardId);
+      saveCards();
+
+      // state changed, then re-render the ui
+      renderCards();
+      console.log("deleteCard: Successfully removed card:", cardId);
+      console.log("remaining cards: ", cards.length);
+    }),
+      { once: true };
+  } else {
+    // No element found, just remove from state
+    cards = cards.filter((card) => card.id !== cardId);
+    saveCards();
+    renderCards();
+    console.log("deleteCard: Successfully removed card:", cardId);
+  }
 
   if (cards.length === initialLength) {
     console.error("deleteCard: Faied to remove card with cardId: ", cardId);
     return false;
   }
 
-  saveCards();
-
-  // state changed, then re-render the ui
-  renderCards();
-
-  console.log("deleteCard: Successfully remove card: ", cardId);
-  console.log("remaining cards: ", cards.length);
   return true;
 }
 
